@@ -31,7 +31,7 @@ class MultiChannelNotificationsServiceProvider extends ServiceProvider
         ], 'notifications-migrations');
 
         $this->publishes([
-            __DIR__ . '/../Models/NotificationLog.php' => app_path('Models/NotificationLog.php'),
+            __DIR__ . '/Models/NotificationLog.php' => app_path('Models/NotificationLog.php'),
         ], 'notifications-model');
     }
 }
