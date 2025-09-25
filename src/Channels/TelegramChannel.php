@@ -34,7 +34,7 @@ class TelegramChannel implements ChannelInterface
             $response = Http::post($url, [
                 'chat_id' => $chatId,
                 'text' => $this->formatMessage($message),
-                'parse_mode' => 'Markdown',
+                'parse_mode' => 'HTML',
             ]);
             
             if ($response->successful()) {
@@ -77,17 +77,31 @@ class TelegramChannel implements ChannelInterface
         return str_starts_with($recipient, '@') ? $recipient : $recipient;
     }
     
-    protected function formatMessage(NotificationMessage $message): string
-    {
-        $text = "*{$message->title}*\n\n{$message->body}";
-        
-        if (!empty($message->data)) {
-            $text .= "\n\n_Additional Info:_";
-            foreach ($message->data as $key => $value) {
-                $text .= "\n• " . ucfirst($key) . ": `" . $value . "`";
+  protected function formatMessage(NotificationMessage $message): string
+{
+    $escape = fn($text) => htmlspecialchars((string)$text, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+
+    $text = "<b>" . $escape($message->title) . "</b>\n\n" . $escape($message->body);
+
+    if (!empty($message->data)) {
+        $text .= "\n\n<i>Additional Info:</i>";
+        foreach ($message->data as $key => $value) {
+            if (is_array($value) && count($value) === 1) {
+                $innerKey = array_key_first($value);
+                $innerValue = $value[$innerKey];
+
+                $innerKey = trim($innerKey, "'\"");
+
+                $text .= "\n• <i>" . $escape(ucfirst($innerKey)) . "</i>: " . $escape($innerValue);
+                continue;
             }
+
+            // fallback
+            $text .= "\n• <i>" . $escape(ucfirst($key)) . "</i>: " . $escape(is_array($value) ? json_encode($value, JSON_UNESCAPED_UNICODE) : $value);
         }
-        
-        return $text;
     }
+
+    return $text;
+}
+
 }
