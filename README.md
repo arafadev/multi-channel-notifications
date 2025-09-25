@@ -7,7 +7,7 @@
 Install the package via Composer:
 
 ```bash
-composer require arafa/multi-channel-notifications
+composer require arafadev/multi-channel-notifications
 ```
 
 ### ✅ Publish Configuration
