@@ -16,6 +16,13 @@ composer require arafadev/multi-channel-notifications
 php artisan vendor:publish --provider="Arafa\Notifications\MultiChannelNotificationsServiceProvider" --tag="notifications-config"
 ```
 
+### 🛠️ Publish Model
+
+```bash
+php artisan vendor:publish --provider="Arafa\Notifications\MultiChannelNotificationsServiceProvider" --tag="notifications-model"
+```
+
+
 ### 🛠️ Run Migrations
 
 ```bash
