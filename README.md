@@ -108,20 +108,20 @@ $message = NotificationMessage::create(
 );
 
     // Send to multiple channels and users (comma-separated)
-    $recipients = explode(',', env('SLACK_CHANNELS')); // all-testworkspace,social,engineering_tasks,@arafa.dev
+$recipients = explode(',', env('SLACK_CHANNELS')); // all-testworkspace,social,engineering_tasks,@arafa.dev
 
-    foreach ($recipients as $recipient) {
-        $responses[] = Notify::send(trim($recipient), $message, 'slack');
-    }
+foreach ($recipients as $recipient) {
+    $responses[] = Notify::send(trim($recipient), $message, 'slack');
+}
 
-    return response()->json([
-        'success' => collect($responses)->every(fn($r) => $r->isSuccess()),
-        'responses' => array_map(fn($r) => [
-            'message_id' => $r->messageId,
-            'provider_response' => $r->providerResponse,
-            'error' => $r->error,
-        ], $responses),
-    ]);
+return response()->json([
+    'success' => collect($responses)->every(fn($r) => $r->isSuccess()),
+    'responses' => array_map(fn($r) => [
+        'message_id' => $r->messageId,
+        'provider_response' => $r->providerResponse,
+        'error' => $r->error,
+    ], $responses),
+]);
 ```
 ## 📧 Email Example
 
@@ -144,21 +144,21 @@ $message = NotificationMessage::create(
         'uptime' => '99.9%'
     ]);
 
-    // Send to multiple channels (comma-separated)
-    $recipients = explode(',', env('DISCORD_RECIPIENTS')); // #general,
+// Send to multiple channels (comma-separated)
+$recipients = explode(',', env('DISCORD_RECIPIENTS')); // #general,
 
-    foreach ($recipients as $recipient) {
-        $responses[] = Notify::send(trim($recipient), $message, 'discord');
-    }
+foreach ($recipients as $recipient) {
+    $responses[] = Notify::send(trim($recipient), $message, 'discord');
+}
 
-    return response()->json([
-        'success' => collect($responses)->every(fn($r) => $r->isSuccess()),
-        'responses' => array_map(fn($r) => [
-            'message_id' => $r->messageId,
-            'provider_response' => $r->providerResponse,
-            'error' => $r->error,
-        ], $responses),
-    ]);
+return response()->json([
+    'success' => collect($responses)->every(fn($r) => $r->isSuccess()),
+    'responses' => array_map(fn($r) => [
+        'message_id' => $r->messageId,
+        'provider_response' => $r->providerResponse,
+        'error' => $r->error,
+    ], $responses),
+]);
 ```
 
 ## 👥 Teams Example
