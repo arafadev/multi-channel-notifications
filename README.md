@@ -22,7 +22,6 @@ php artisan vendor:publish --provider="Arafa\Notifications\MultiChannelNotificat
 php artisan vendor:publish --provider="Arafa\Notifications\MultiChannelNotificationsServiceProvider" --tag="notifications-model"
 ```
 
-
 ### 🛠️ Run Migrations
 
 ```bash
@@ -60,59 +59,31 @@ TEAMS_WEBHOOK_URL=your_webhook_url
 MESSENGER_PAGE_ACCESS_TOKEN=your_page_token
 ```
 
-## 🚀 Basic Usage
-
-```php
-use Arafa\Notifications\Facades\Notify;
-use Arafa\Notifications\Messages\NotificationMessage;
-
-$message = NotificationMessage::create('Welcome!', 'Thank you for joining our platform.');
-
-// Auto-detect channel based on recipient
-$response = Notify::send('user@example.com', $message);
-
-// Or specify channel
-$response = Notify::send('+1234567890', $message, 'sms');
-
-if ($response->isSuccess()) {
-    echo "Sent! ID: " . $response->messageId;
-}
-```
 
 ## 📡 Supported Channels
 
-| Channel | Emoji | Provider | Recipient Format |
-|---------|-------|----------|------------------|
-| Email | 📧 | Laravel Mail | `user@example.com` |
-| SMS | 💬 | Twilio | `+1234567890` |
-| WhatsApp | 📱 | Twilio | `+1234567890` |
-| Voice | 🔊 | Twilio | `+1234567890` |
-| Slack | 🧑‍💻 | Slack API | `#channel` or `@user` |
-| Discord | 🟣 | Discord API | `channel_name` or `user_id` |
-| Teams | 👥 | Webhooks | any string |
-| Telegram | 📢 | Bot API | `@username` or `chat_id` |
-| Messenger | 📨 | Facebook API | `facebook_user_id` |
+| Channel   | Emoji | Provider     | Recipient Format            |
+| --------- | ----- | ------------ | --------------------------- |
+| Email     | 📧    | Laravel Mail | `user@example.com`          |
+| SMS       | 💬    | Twilio       | `+1234567890`               |
+| WhatsApp  | 📱    | Twilio       | `+1234567890`               |
+| Voice     | 🔊    | Twilio       | `+1234567890`               |
+| Slack     | 🧑‍💻    | Slack API    | `#channel` or `@user`       |
+| Discord   | 🟣    | Discord API  | `channel_name` or `user_id` |
+| Teams     | 👥    | Webhooks     | any string                  |
+| Telegram  | 📢    | Bot API      | `@username` or `chat_id`    |
+| Messenger | 📨    | Facebook API | `facebook_user_id`          |
 
-## 📧 Email Example
 
-```php
-$message = NotificationMessage::create(
-    'Account Verification',
-    'Please verify your email address.'
-);
-
-$response = Notify::send('user@example.com', $message, 'email');
-```
-
-## 💬 SMS Example
+## 🔊 Voice Example
 
 ```php
 $message = NotificationMessage::create(
-    'Security Alert',
-    'Your account was accessed from a new device.'
+    'Emergency Alert',
+    'This is an urgent security notification.'
 );
 
-$response = Notify::send('+1234567890', $message, 'sms');
+$response = Notify::send('+1234567890', $message, 'voice');
 ```
 
 ## 📱 WhatsApp Example
@@ -128,17 +99,6 @@ $message = NotificationMessage::create(
 $response = Notify::send('+1234567890', $message, 'whatsapp');
 ```
 
-## 🔊 Voice Example
-
-```php
-$message = NotificationMessage::create(
-    'Emergency Alert',
-    'This is an urgent security notification.'
-);
-
-$response = Notify::send('+1234567890', $message, 'voice');
-```
-
 ## 🧑‍💻 Slack Example
 
 ```php
@@ -147,12 +107,31 @@ $message = NotificationMessage::create(
     'App deployed to production successfully!'
 );
 
-// Send to multiple channels and users (comma-separated)
-$response = Notify::send('all-testworkspace,social,engineering_tasks,@arafa.dev', $message, 'slack');
+    // Send to multiple channels and users (comma-separated)
+    $recipients = explode(',', env('SLACK_CHANNELS')); // all-testworkspace,social,engineering_tasks,@arafa.dev
 
-// Or send to single channel/user
-$response = Notify::send('#general', $message, 'slack');
-$response = Notify::send('@john', $message, 'slack');
+    foreach ($recipients as $recipient) {
+        $responses[] = Notify::send(trim($recipient), $message, 'slack');
+    }
+
+    return response()->json([
+        'success' => collect($responses)->every(fn($r) => $r->isSuccess()),
+        'responses' => array_map(fn($r) => [
+            'message_id' => $r->messageId,
+            'provider_response' => $r->providerResponse,
+            'error' => $r->error,
+        ], $responses),
+    ]);
+```
+## 📧 Email Example
+
+```php
+$message = NotificationMessage::create(
+    'Account Verification',
+    'Please verify your email address.'
+);
+
+$response = Notify::send('user@example.com', $message, 'email');
 ```
 
 ## 🟣 Discord Example
@@ -161,18 +140,25 @@ $response = Notify::send('@john', $message, 'slack');
 $message = NotificationMessage::create(
     'Server Status',
     'All systems operational.'
-)->withData([
-    'uptime' => '99.9%'
-]);
+    )->withData([
+        'uptime' => '99.9%'
+    ]);
 
-// Send to multiple channels (comma-separated)
-$response = Notify::send('#general,#mychannel', $message, 'discord');
+    // Send to multiple channels (comma-separated)
+    $recipients = explode(',', env('DISCORD_RECIPIENTS')); // #general,
 
-// Or send to single channel
-$response = Notify::send('general', $message, 'discord');
+    foreach ($recipients as $recipient) {
+        $responses[] = Notify::send(trim($recipient), $message, 'discord');
+    }
 
-// Send DM to user
-$response = Notify::send('123456789', $message, 'discord');
+    return response()->json([
+        'success' => collect($responses)->every(fn($r) => $r->isSuccess()),
+        'responses' => array_map(fn($r) => [
+            'message_id' => $r->messageId,
+            'provider_response' => $r->providerResponse,
+            'error' => $r->error,
+        ], $responses),
+    ]);
 ```
 
 ## 👥 Teams Example
@@ -184,6 +170,19 @@ $message = NotificationMessage::create(
 );
 
 $response = Notify::send('webhook', $message, 'teams');
+
+return response()->json($response);
+```
+
+## 💬 SMS Example
+
+```php
+$message = NotificationMessage::create(
+    'Security Alert',
+    'Your account was accessed from a new device.'
+);
+
+$response = Notify::send('+1234567890', $message, 'sms');
 ```
 
 ## 📢 Telegram Example
@@ -195,9 +194,6 @@ $message = NotificationMessage::create(
 )->withData([
     'price' => '$50,125'
 ]);
-
-// Send to user
-$response = Notify::send('@username', $message, 'telegram');
 
 // Send to chat
 $response = Notify::send('123456789', $message, 'telegram');
@@ -211,7 +207,9 @@ $message = NotificationMessage::create(
     'You have a message from support.'
 );
 
-$response = Notify::send('1234567890', $message, 'messenger');
+$response = Notify::send(env('MESSENGER_FACEBOOK_USER_ID'), $message, 'messenger');
+
+return response()->json($response);
 ```
 
 ## 🔧 Custom Channel
@@ -230,47 +228,47 @@ use Arafa\Notifications\Responses\NotificationResponse;
 class MyCustomChannel implements ChannelInterface
 {
     protected array $config;
-    
+
     public function __construct(array $config)
     {
         $this->config = $config;
     }
-    
+
     public function send(string $recipient, NotificationMessage $message): NotificationResponse
     {
         // Your sending logic here
         try {
             $result = $this->sendMessage($recipient, $message);
-            
+
             return NotificationResponse::success(
-                $result['id'], 
-                $result, 
+                $result['id'],
+                $result,
                 'custom'
             );
         } catch (\Exception $e) {
             return NotificationResponse::failure(
-                $e->getMessage(), 
-                [], 
+                $e->getMessage(),
+                [],
                 'custom'
             );
         }
     }
-    
+
     public function validateRecipient(string $recipient): bool
     {
         return !empty($recipient);
     }
-    
+
     public function getName(): string
     {
         return 'custom';
     }
-    
+
     public function isConfigured(): bool
     {
         return !empty($this->config['api_key']);
     }
-    
+
     private function sendMessage($recipient, $message)
     {
         // Your custom provider logic
