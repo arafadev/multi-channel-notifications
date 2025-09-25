@@ -2,6 +2,20 @@
 
 🚀 A comprehensive Laravel package that enables you to send notifications across multiple channels from a single, unified interface. Send emails, SMS, WhatsApp messages, Slack notifications, Discord messages, and more with consistent API.
 
+## 📡 Supported Channels
+
+| Channel   | Emoji | Provider     | Recipient Format            |
+| --------- | ----- | ------------ | --------------------------- |
+| Email     | 📧    | Laravel Mail | `user@example.com`          |
+| SMS       | 💬    | Twilio       | `+1234567890`               |
+| WhatsApp  | 📱    | Twilio       | `+1234567890`               |
+| Voice     | 🔊    | Twilio       | `+1234567890`               |
+| Slack     | 🧑‍💻    | Slack API    | `#channel` or `@user`       |
+| Discord   | 🟣    | Discord API  | `channel_name` or `user_id` |
+| Teams     | 👥    | Webhooks     | any string                  |
+| Telegram  | 📢    | Bot API      | `@username` or `chat_id`    |
+| Messenger | 📨    | Facebook API | `facebook_user_id`          |
+
 ## 📦 Installation
 
 Install the package via Composer:
@@ -58,22 +72,6 @@ TEAMS_WEBHOOK_URL=your_webhook_url
 # Messenger
 MESSENGER_PAGE_ACCESS_TOKEN=your_page_token
 ```
-
-
-## 📡 Supported Channels
-
-| Channel   | Emoji | Provider     | Recipient Format            |
-| --------- | ----- | ------------ | --------------------------- |
-| Email     | 📧    | Laravel Mail | `user@example.com`          |
-| SMS       | 💬    | Twilio       | `+1234567890`               |
-| WhatsApp  | 📱    | Twilio       | `+1234567890`               |
-| Voice     | 🔊    | Twilio       | `+1234567890`               |
-| Slack     | 🧑‍💻    | Slack API    | `#channel` or `@user`       |
-| Discord   | 🟣    | Discord API  | `channel_name` or `user_id` |
-| Teams     | 👥    | Webhooks     | any string                  |
-| Telegram  | 📢    | Bot API      | `@username` or `chat_id`    |
-| Messenger | 📨    | Facebook API | `facebook_user_id`          |
-
 
 ## 🔊 Voice Example
 
